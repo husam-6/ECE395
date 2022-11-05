@@ -73,13 +73,13 @@ result = model.transcribe("output.mp3")
 
 process_string = result["text"].split()
 
-pieces = {"Pawn" : "", 
-          "Rook" : "R",
-          "Bishop" : "B", 
-          "Knight": "N", 
-          "Night": "N", 
-          "King" : "K", 
-          "Queen" : "Q"}
+pieces = {"pawn" : "", 
+          "rook" : "R",
+          "bishop" : "B", 
+          "knight": "N", 
+          "night": "N", 
+          "king" : "K", 
+          "queen" : "Q"}
 
 print(process_string)
 
@@ -87,11 +87,11 @@ move = ""
 
 for item in process_string:
     # If the word is a piece...
-    if item in pieces:
-        move += pieces[item]
+    if item.lower() in pieces:
+        move += pieces[item.lower()]
     # If the word is the square to move to...
-    if(re.match("^(?=.*[a-zA-Z])(?=.*[0-9])", item)):
-        move += item
+    if(re.match("^(?=.*[a-zA-Z])(?=.*[0-9])", item) and len(item) == 2):
+        move += item.lower()
 
 
 print(move)
