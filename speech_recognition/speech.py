@@ -8,11 +8,12 @@ import whisper
 import pyaudio
 import wave
 from pydub import AudioSegment
+import re
 
 
 # Bring in Whisper model (pre-trained)
 options = whisper.DecodingOptions(fp16=False)
-model = whisper.load_model("base")
+model = whisper.load_model("base", device="cpu")
 
 """ Code to record audio real time - obtained from 
 
@@ -67,4 +68,30 @@ sound.export('output.mp3', format='mp3')
 wf.close()
 
 result = model.transcribe("output.mp3")
-print(result["text"])
+
+# print(result["text"])
+
+process_string = result["text"].split()
+
+pieces = {"Pawn" : "", 
+          "Rook" : "R",
+          "Bishop" : "B", 
+          "Knight": "N", 
+          "Night": "N", 
+          "King" : "K", 
+          "Queen" : "Q"}
+
+print(process_string)
+
+move = ""
+
+for item in process_string:
+    # If the word is a piece...
+    if item in pieces:
+        move += pieces[item]
+    # If the word is the square to move to...
+    if(re.match("^(?=.*[a-zA-Z])(?=.*[0-9])", item)):
+        move += item
+
+
+print(move)
