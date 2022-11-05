@@ -3,7 +3,8 @@
 import chess
 import chess.svg
 from IPython.display import SVG
-
+import speech
+import time
 
 board = chess.Board()
 # print(board.legal_moves)
@@ -26,7 +27,10 @@ while not board.is_checkmate():
         print("")
         print(s)
         print("")
-        move = input("Enter a move: ")
+        print("Pausing for 10 seconds... Pick a move!")
+        # time.sleep(10)
+        move = speech.getMoveFromAudio()
+        # move = input("Enter a move: ")
         board.push_san(move)
     except ValueError:
         print("\nEnter a valid move...")
