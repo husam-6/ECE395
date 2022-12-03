@@ -134,8 +134,7 @@ def parse_text(text: str):
 def callback(recognizer, audio):  # this is called from the background thread
     # Words that sphinx should listen closely for. 0-1 is the sensitivity
     # of the wake word.
-    print("got here")
-    keywords = [("chessboard", 0.9), ("hey chessboard", 0.9), ]
+    keywords = [("chessboard", 1), ("hey chessboard", 1), ("rook D6", 1)]
     try:
         speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords)
         print(speech_as_text)
@@ -152,11 +151,12 @@ def start_recognizer():
     print("Listening in background")
     r = sr.Recognizer()
     source = sr.Microphone(0)
+    with source as s:
+        r.adjust_for_ambient_noise(s)  
     r.listen_in_background(source, callback)
     time.sleep(1000000)
 
 
 if __name__ == "__main__":
-    # print(sr.Microphone.list_microphone_names())
-    # start_recognizer()
-    getMoveFromAudio()
+    start_recognizer()
+    # getMoveFromAudio()
