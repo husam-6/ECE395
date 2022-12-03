@@ -9,13 +9,13 @@ To do:
 + when two pieces of the same kind can both access a square
 
 """
-
-
 import whisper
 import pyaudio
 import wave
 from pydub import AudioSegment
 import re
+import speech_recognition as sr
+import time
 
 def getMoveFromAudio():
     """Function to use python script to read in an audio recording
@@ -24,8 +24,8 @@ def getMoveFromAudio():
     """
 
     # Bring in Whisper model (pre-trained)
-    options = whisper.DecodingOptions(fp16=False)
-    model = whisper.load_model("base", device="cpu")
+    # options = whisper.DecodingOptions(fp16=False)
+    model = whisper.load_model("base")
 
     """ Code to record audio real time - obtained from 
 
@@ -79,14 +79,19 @@ def getMoveFromAudio():
 
     wf.close()
 
-    result = model.transcribe("output.mp3")
+    result = model.transcribe("output.mp3", fp16=False)
 
-    print(result['text'])
+    return parse_text(result["text"])
 
-    if result['text'][-1] == '.':
-        result['text'] = result['text'][:-1]
+
+def parse_text(text: str):
+    if len(text) == 0:
+        return text
+
+    if text[-1] == '.':
+        text = text[:-1]
     
-    process_string = result["text"].split()
+    process_string = text.split()
     
     # print(process_string)
 
@@ -124,3 +129,34 @@ def getMoveFromAudio():
 
     print(move)
     return move
+
+
+def callback(recognizer, audio):  # this is called from the background thread
+    # Words that sphinx should listen closely for. 0-1 is the sensitivity
+    # of the wake word.
+    print("got here")
+    keywords = [("chessboard", 0.9), ("hey chessboard", 0.9), ]
+    try:
+        speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords)
+        print(speech_as_text)
+
+        # Look for your "Ok Google" keyword in speech_as_text
+        if "chessboard" in speech_as_text or "hey chessboard":
+            getMoveFromAudio()
+
+    except sr.UnknownValueError:
+        print("Oops! Didn't catch that")
+
+
+def start_recognizer():
+    print("Listening in background")
+    r = sr.Recognizer()
+    source = sr.Microphone(0)
+    r.listen_in_background(source, callback)
+    time.sleep(1000000)
+
+
+if __name__ == "__main__":
+    # print(sr.Microphone.list_microphone_names())
+    # start_recognizer()
+    getMoveFromAudio()
