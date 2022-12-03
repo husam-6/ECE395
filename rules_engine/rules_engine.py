@@ -30,8 +30,15 @@ while not board.is_checkmate():
         print("Pausing for 10 seconds... Pick a move!")
         # time.sleep(10)
         move = speech.getMoveFromAudio()
-        # move = input("Enter a move: ")
+
+        #move = input("Enter a move: ")
+        square_diction = board.parse_san(move)
+        is_cap = board.is_capture(square_diction)
+
         board.push_san(move)
+
+        gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:], is_cap)
+        print(gantry_move_format)
     except ValueError:
         print("\nEnter a valid move...")
         continue
