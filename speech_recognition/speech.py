@@ -16,6 +16,11 @@ from pydub import AudioSegment
 import re
 import speech_recognition as sr
 import time
+import chess
+import chess.svg
+import rules_engine
+
+board = chess.Board()
 
 def getMoveFromAudio():
     """Function to use python script to read in an audio recording
@@ -127,14 +132,14 @@ def parse_text(text: str):
             else:
                 move = "O-O"
 
-    print(move)
+    rules_engine.make_move(board, move)
     return move
 
 
 def callback(recognizer, audio):  # this is called from the background thread
     # Words that sphinx should listen closely for. 0-1 is the sensitivity
     # of the wake word.
-    keywords = [("chessboard", 1), ("hey chessboard", 1), ("rook D6", 1)]
+    keywords = [("chessboard", 1), ("chess", 1)]
     try:
         speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords)
         print(speech_as_text)
@@ -158,5 +163,6 @@ def start_recognizer():
 
 
 if __name__ == "__main__":
+    print(board)
     start_recognizer()
     # getMoveFromAudio()
