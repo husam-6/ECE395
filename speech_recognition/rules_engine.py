@@ -87,16 +87,29 @@ def execute_move(m):
     start_coord = (mapping[m[0][0]], int(m[0][1]) - 1)
     end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
     
-    if m[2] == True:
+    if m[2]:
         # Go to end_coord, raise magnet
         # Go down 1/2, then off the board
-        # Then go back to baseline_coord
-        print("Capture Portion Needs to be Programmed Later")
-    
+        # Then go back to start_coord
+        move_num_squares(1, 1, end_coord[0])
+        move_num_squares(2, 1, end_coord[1])
+        magnet_on()
+
+        # Move piece off the board
+        move_num_squares(2, 0, 1/2)
+        move_num_squares(1, 0, end_coord[0] + 1)
+        magnet_off()
+
+        # Move to start square
+        move_num_squares_helper(start_coord[0] + 1, True)
+        move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
+        magnet_on()
+
     # Go to start square and raise magnet
-    move_num_squares(1, 1, start_coord[0])
-    move_num_squares(2, 1, start_coord[1])
-    magnet_on()
+    else:
+        move_num_squares(1, 1, start_coord[0])
+        move_num_squares(2, 1, start_coord[1])
+        magnet_on()
     
     # Check if knight
     if m[3] == 2:
