@@ -19,10 +19,12 @@ import time
 import chess
 import chess.svg
 import rules_engine
+from pocketsphinx import LiveSpeech
+import numpy as np
 
 board = chess.Board()
 
-def getMoveFromAudio():
+def get_move_from_audio():
     """Function to use python script to read in an audio recording
     
     and transcribe it using OpenAI Whisper Model
@@ -61,7 +63,7 @@ def getMoveFromAudio():
     # Store data in chunks for 3 seconds
     for i in range(0, int(fs / chunk * seconds)):
         data = stream.read(chunk)
-        frames.append(data)
+        frames.append(np.frombuffer(data, dtype=np.int16))
 
     # Stop and close the stream 
     stream.stop_stream()
@@ -141,12 +143,11 @@ def callback(recognizer, audio):  # this is called from the background thread
     # of the wake word.
     keywords = [("chessboard", 1), ("chess", 1)]
     try:
-        speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords)
+        speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords).lower()
         print(speech_as_text)
 
-        # Look for your "Ok Google" keyword in speech_as_text
-        if "chessboard" in speech_as_text or "hey chessboard":
-            getMoveFromAudio()
+        if "chess" in speech_as_text:
+            get_move_from_audio()
 
     except sr.UnknownValueError:
         print("Oops! Didn't catch that")

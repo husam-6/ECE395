@@ -5,10 +5,9 @@ import chess.svg
 from IPython.display import SVG
 import speech
 import time
+import os
 
 def make_move(board, move):
-    if board.is_checkmate():
-        print("Checkmate")
 
     # if board.turn():
     #     print("White's move: \n")
@@ -32,6 +31,9 @@ def make_move(board, move):
     except ValueError:
         print("\nEnter a valid move...")
     
+    if board.is_checkmate():
+        print("Checkmate!")
 
+    # os._exit(1)
 
 
