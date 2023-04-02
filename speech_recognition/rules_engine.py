@@ -1,8 +1,16 @@
 # %% Libraries
 
+
+# importing sys
+import sys
+
+# adding Folder_2/subfolder to the system path
+
 from numpy import square
 import chess
 import chess.svg
+import arduino_control 
+from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
 # from IPython.display import SVG
 # import speech
 import time
@@ -24,38 +32,38 @@ baseline_coord = (0,0)
 # Motor 1 = moves x axis
 # Motor 2 = moves y axis
 # Direction: 1 means to the right (or up), 0 means to the left (or down)
-def move_num_squares(motor=1, _dir=1, num_squares=1):
-    tmp = "Up"
-    if motor == 1:
-        if _dir == 1:
-            tmp = "Right"
-        else:
-            tmp = "Left"
-    else:
-        if _dir == 0:
-            tmp = "Down"
+# def move_num_squares(motor=1, _dir=1, num_squares=1):
+#     tmp = "Up"
+#     if motor == 1:
+#         if _dir == 1:
+#             tmp = "Right"
+#         else:
+#             tmp = "Left"
+#     else:
+#         if _dir == 0:
+#             tmp = "Down"
         
     
-    print("Move " + str(num_squares) + " " + tmp)
+    # print("Move " + str(num_squares) + " " + tmp)
 
-def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
-    tmp = "Up-Left"
-    if _dir_1 == 1:
-        if _dir_2 == 1:
-            tmp = "Up-Right"
-        else:
-            tmp = "Down-Right"
-    else:
-        if _dir_2 == 0:
-            tmp = "Down-Left"
+# def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
+#     tmp = "Up-Left"
+#     if _dir_1 == 1:
+#         if _dir_2 == 1:
+#             tmp = "Up-Right"
+#         else:
+#             tmp = "Down-Right"
+#     else:
+#         if _dir_2 == 0:
+#             tmp = "Down-Left"
             
-    print("Move " + str(num_squares) + " " + tmp)
+#     print("Move " + str(num_squares) + " " + tmp)
     
-def magnet_on():
-    print("Magnet On")
+# def magnet_on():
+#     print("Magnet On")
 
-def magnet_off():
-    print("Magnet Off")
+# def magnet_off():
+#     print("Magnet Off")
   
   
 # PERMANENT FUNCTIONS
@@ -206,6 +214,13 @@ def make_move(board, move):
         print("Checkmate!")
 
     # os._exit(1)
+
+# Get to start square by going to edge of board
+move_num_squares(1, 0, 300)
+move_num_squares(2, 0, 300)
+
+move_num_squares(1, 1, 2)
+move_num_squares(2, 1, 2)
 
 # Temporary for path algo testing
 board = chess.Board()
