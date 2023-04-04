@@ -6,7 +6,7 @@ MOTOR_1 = 1
 MOTOR_2 = 2
 MOTOR_1_PINS = (2, 4)       # (DIR, STEP)
 MOTOR_2_PINS = (5, 6)       # (DIR, STEP)
-MAGNET_PIN = 8
+MAGNET_PIN = 9
 
 DELAY = 400e-6
 board = pyfirmata.Arduino('/dev/cu.usbmodem14101')
@@ -14,19 +14,29 @@ print("Communication Successfully started")
 print("Initializing limit switch params")
 
 # For limit switches
-ANALOG_PIN1 = 5
-ANALOG_PIN2 = 0
-ANALOG_PIN3 = 1
-ANALOG_PIN4 = 3
+LIMIT_1 = 12
+LIMIT_2 = 11
+LIMIT_3 = 10
+LIMIT_4 = 13
 
+
+board.digital[LIMIT_1].mode = pyfirmata.INPUT
+board.digital[LIMIT_2].mode = pyfirmata.INPUT
+board.digital[LIMIT_3].mode = pyfirmata.INPUT
+board.digital[LIMIT_4].mode = pyfirmata.INPUT
 it = pyfirmata.util.Iterator(board)
-board.analog[ANALOG_PIN1].enable_reporting()
 it.start()
 
+# ANALOG_PIN1 = 5
+# ANALOG_PIN2 = 0             
+# ANALOG_PIN3 = 1             
+# ANALOG_PIN4 = 3             
+
 # it2 = pyfirmata.util.Iterator(board)
-board.analog[ANALOG_PIN2].enable_reporting()
-board.analog[ANALOG_PIN3].enable_reporting()
-board.analog[ANALOG_PIN4].enable_reporting()
+# board.analog[ANALOG_PIN1].enable_reporting()
+# board.analog[ANALOG_PIN2].enable_reporting()
+# board.analog[ANALOG_PIN3].enable_reporting()
+# board.analog[ANALOG_PIN4].enable_reporting() 
 board.pass_time(1)
 # it2.start()
 
@@ -45,11 +55,12 @@ def move_num_squares(motor=MOTOR_1, _dir=1, num_squares=1):
     # 800 pulses = 1 revolution
     for i in range(bound):
         #print(f"LIMIT SWITCH INPUT: {board.analog[ANALOG_PIN].read()}")
-        if (board.analog[ANALOG_PIN1].read() >= 0.005 and _dir == 1 and motor == MOTOR_1) or (board.analog[ANALOG_PIN2].read() >= 0.005 and _dir == 0 and motor == MOTOR_1) or (board.analog[ANALOG_PIN3].read() >= 0.005 and _dir == 0 and motor == MOTOR_2) or (board.analog[ANALOG_PIN4].read() >= 0.005 and _dir == 1 and motor == MOTOR_2):
+        if (board.digital[LIMIT_1].read() and _dir == 1 and motor == MOTOR_1) or (board.digital[LIMIT_2].read() and _dir == 0 and motor == MOTOR_1) or (board.digital[LIMIT_3].read() and _dir == 0 and motor == MOTOR_2) or (board.digital[LIMIT_4].read() and _dir == 1 and motor == MOTOR_2):
             print("LIMIT SWITCH HIT" )
+            print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, Limit 2: {board.digital[LIMIT_2].read()}, Limit 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
             board.pass_time(1)
-            # print(f"LIMIT SWITCH: {board.analog[ANALOG_PIN1].read()}")
-            # print(f"LIMIT SWITCH: {board.analog[ANALOG_PIN2].read()}")
+            # print(f"LIMIT SWITCH: {board.digital[ANALOG_PIN1].read()}")
+            # print(f"LIMIT SWITCH: {board.digital[ANALOG_PIN2].read()}")
             return
         
 
@@ -74,7 +85,7 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
     board.digital[dir_pin_2].write(_dir_2)
     # 800 pulses = 1 revolution
     for i in range(bound):
-        if board.analog[ANALOG_PIN1].read() >= 0.005 or board.analog[ANALOG_PIN2].read() >= 0.005 or board.analog[ANALOG_PIN3].read() >= 0.005 or board.analog[ANALOG_PIN4].read() >= 0.005:
+        if board.digital[LIMIT_1].read() or board.digital[LIMIT_2].read() or board.digital[LIMIT_3].read() or board.digital[LIMIT_4].read():
             print("LIMIT SWITCH HIT" )
             board.pass_time(1)
             return
@@ -89,9 +100,11 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
 
 def magnet_on():
     board.digital[MAGNET_PIN].write(1)
+    board.pass_time(1)
 
 def magnet_off():
     board.digital[MAGNET_PIN].write(0)
+    board.pass_time(1)
 
 def test_both():
     squares = int(input("Enter number of squares to move: "))
@@ -108,15 +121,17 @@ def test_one_at_time():
     move_num_squares(motor, direc, squares)
 
 if __name__ == "__main__":
+    # magnet_on()
     while True:
-        # choice = int(input("Test one motor (1) at a time or both (2) or magnet 3? Enter 1 or 2 or 3: "))
-        # if (choice == 2):
-        #     test_both()
-        # if choice == 3:
-        #     magnet_on()
-        #     board.pass_time(5)
-        #     magnet_off()
-        # else:
-        #     test_one_at_time()
-        print(f"LIMIT 1: {board.analog[ANALOG_PIN1].read()}, Limit 2: {board.analog[ANALOG_PIN2].read()}, Limit 3: {board.analog[ANALOG_PIN3].read()}, Limit 4: {board.analog[ANALOG_PIN4].read()}")
+        choice = int(input("Test one motor (1) at a time or both (2) or magnet 3? Enter 1 or 2 or 3 or 4: "))
+        if (choice == 2):
+            test_both()
+        elif choice == 3:
+            magnet_on()
+            board.pass_time(5)
+        elif choice == 4:
+            magnet_off()
+        else:
+            test_one_at_time()
+        # print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, LIMIT 2: {board.digital[LIMIT_2].read()}, LIMIT 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
         board.pass_time(0.05)

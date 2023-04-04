@@ -28,6 +28,9 @@ mapping = {
 }
 baseline_coord = (0,0)
 
+START_X = 1
+START_Y = 1
+
 # TEMPORARY FUNCTIONS FOR PRINTING
 # Motor 1 = moves x axis
 # Motor 2 = moves y axis
@@ -219,14 +222,16 @@ def make_move(board, move):
 move_num_squares(1, 0, 300)
 move_num_squares(2, 0, 300)
 
-move_num_squares(1, 1, 2)
-move_num_squares(2, 1, 2)
+move_num_squares(1, 1, START_X)
+move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
 board = chess.Board()
 print(board)
-while(True):
-    move = input("What is your chess move?")
-    make_move(board, move)
+
+if __name__ == "__main__":
+    while(True):
+        move = input("What is your chess move?")
+        make_move(board, move)
 
 
