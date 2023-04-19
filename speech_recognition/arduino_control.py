@@ -27,16 +27,6 @@ board.digital[LIMIT_4].mode = pyfirmata.INPUT
 it = pyfirmata.util.Iterator(board)
 it.start()
 
-# ANALOG_PIN1 = 5
-# ANALOG_PIN2 = 0             
-# ANALOG_PIN3 = 1             
-# ANALOG_PIN4 = 3             
-
-# it2 = pyfirmata.util.Iterator(board)
-# board.analog[ANALOG_PIN1].enable_reporting()
-# board.analog[ANALOG_PIN2].enable_reporting()
-# board.analog[ANALOG_PIN3].enable_reporting()
-# board.analog[ANALOG_PIN4].enable_reporting() 
 board.pass_time(1)
 # it2.start()
 
@@ -100,11 +90,11 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
 
 def magnet_on():
     board.digital[MAGNET_PIN].write(1)
-    board.pass_time(1)
+    board.pass_time(2)
 
 def magnet_off():
     board.digital[MAGNET_PIN].write(0)
-    board.pass_time(1)
+    board.pass_time(2)
 
 def test_both():
     squares = int(input("Enter number of squares to move: "))
@@ -123,7 +113,7 @@ def test_one_at_time():
 if __name__ == "__main__":
     # magnet_on()
     while True:
-        choice = int(input("Test one motor (1) at a time or both (2) or magnet 3? Enter 1 or 2 or 3 or 4: "))
+        choice = int(input("Test one motor (1) \nBoth (2) \nMagnet on (3) \nMagnet off (4) \nTest limit switches (5)\n"))
         if (choice == 2):
             test_both()
         elif choice == 3:
@@ -131,7 +121,9 @@ if __name__ == "__main__":
             board.pass_time(5)
         elif choice == 4:
             magnet_off()
+        elif choice == 5:
+            while True:
+                print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, LIMIT 2: {board.digital[LIMIT_2].read()}, LIMIT 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
         else:
             test_one_at_time()
-        # print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, LIMIT 2: {board.digital[LIMIT_2].read()}, LIMIT 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
         board.pass_time(0.05)

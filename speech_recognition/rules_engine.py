@@ -231,7 +231,7 @@ print(board)
 
 if __name__ == "__main__":
     while(True):
-        move = input("What is your chess move?")
+        move = input("What is your chess move?\n")
         make_move(board, move)
 
 
