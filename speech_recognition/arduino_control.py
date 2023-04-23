@@ -7,6 +7,7 @@ MOTOR_2 = 2
 MOTOR_1_PINS = (2, 4)       # (DIR, STEP)
 MOTOR_2_PINS = (5, 6)       # (DIR, STEP)
 MAGNET_PIN = 9
+STEPS_PER_SQ = 1.58
 
 DELAY = 400e-6
 board = pyfirmata.Arduino('/dev/cu.usbmodem14101')
@@ -35,7 +36,7 @@ def move_num_squares(motor=MOTOR_1, _dir=1, num_squares=1):
     """ Rotate stepper motor 1 full revolution"""
 
     # For now, assume moving 1 square is 1 full revolution
-    bound = int(num_squares * 800 / 1.5)
+    bound = int(num_squares * 800 / STEPS_PER_SQ)
 
     dir_pin, step_pin = MOTOR_1_PINS
     if motor == MOTOR_2:
@@ -66,7 +67,7 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
     """ Rotate both motors"""
 
     # For now, assume moving 1 square is 1 full revolution
-    bound = int(num_squares * 800 / 1.5)
+    bound = int(num_squares * 800 / STEPS_PER_SQ)
 
     dir_pin_1, step_pin_1 = MOTOR_1_PINS
     dir_pin_2, step_pin_2 = MOTOR_2_PINS
@@ -89,10 +90,16 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
         board.pass_time(DELAY)
 
 def magnet_on():
+    # Slow movement when we are moving a piece
+    global DELAY
+    DELAY = 700e-6
     board.digital[MAGNET_PIN].write(1)
     board.pass_time(2)
 
 def magnet_off():
+    # Reset delay to default
+    global DELAY
+    DELAY = 400e-6
     board.digital[MAGNET_PIN].write(0)
     board.pass_time(2)
 

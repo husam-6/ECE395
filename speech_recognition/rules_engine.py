@@ -28,8 +28,8 @@ mapping = {
 }
 baseline_coord = (0,0)
 
-START_X = 1
-START_Y = 1
+START_X = 1.15 + 3       # fix offset from edge of the board, move 3 squares to a1 square
+START_Y = 0.90
 
 # TEMPORARY FUNCTIONS FOR PRINTING
 # Motor 1 = moves x axis
@@ -108,20 +108,31 @@ def execute_move(m):
         magnet_on()
 
         # Move piece off the board
-        move_num_squares(2, 0, 1/2)
-        move_num_squares(1, 0, end_coord[0] + 1)
-        magnet_off()
+        print(board.turn)
+        if board.turn:
+            move_num_squares(2, 0, 1/2)
+            move_num_squares(1, 0, end_coord[0] + 2)
+            magnet_off()
 
-        # Move to start square
-        move_num_squares_helper(start_coord[0] + 1, True)
-        move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
-        magnet_on()
+            # Move to start square
+            move_num_squares_helper(start_coord[0] + 2, True)
+            move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
+            magnet_on()
+        else:
+            move_num_squares(2, 0, 1/2)
+            move_num_squares(1, 1, 7 - end_coord[0] + 2)
+            magnet_off()
+
+            # Move to start square
+            move_num_squares_helper(start_coord[0] - 9, True)
+            move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
+            magnet_on()
 
     # Go to start square and raise magnet
     else:
         move_num_squares(1, 1, start_coord[0])
         move_num_squares(2, 1, start_coord[1])
-        magnet_on()
+        magnet_on(  )
     
     # Check if knight
     if m[3] == 2:
@@ -218,10 +229,12 @@ def make_move(board, move):
 
     # os._exit(1)
 
+# Initialization 
 # Get to start square by going to edge of board
 move_num_squares(1, 0, 300)
 move_num_squares(2, 0, 300)
 
+# Move to start squares
 move_num_squares(1, 1, START_X)
 move_num_squares(2, 1, START_Y)
 
