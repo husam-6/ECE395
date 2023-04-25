@@ -18,18 +18,19 @@ import speech_recognition as sr
 import time
 import chess
 import chess.svg
-# import rules_engine
+import rules_engine
 from pocketsphinx import LiveSpeech
 import numpy as np
 import time
 import logging
 from whispercpp import Whisper
 
-# logging.basicConfig(
-#     format='%(asctime)s - %(levelname)s: %(message)s',
-#     datefmt='%Y-%m-%d %H:%M:%S',
-#     level=logging.INFO,
-# )
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO,
+)
 
 # Bring in Whisper model (pre-trained)
 logging.info("Loading in whisper model")
@@ -99,9 +100,9 @@ def get_move_from_audio():
     result = model.transcribe_from_file(filename)
     logging.info(f"{result}")
     end_time = time.time()
-    logging.info(f"Time taken to take in spoken move: {end_time - start_time}")
+    logging.info(f"Time taken to transcribe move: {end_time - start_time}")
 
-    return parse_text(result["text"])
+    return parse_text(result)
 
 
 def parse_text(text: str):
@@ -154,7 +155,7 @@ def parse_text(text: str):
 def callback(recognizer, audio):  # this is called from the background thread
     # Words that sphinx should listen closely for. 0-1 is the sensitivity
     # of the wake word.
-    keywords = [("chessboard", 1), ("chess", 1)]
+    keywords = [("hey chess", 1), ("chess", 1)]
     try:
         speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords).lower()
         logging.info(speech_as_text)
