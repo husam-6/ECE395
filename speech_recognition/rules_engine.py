@@ -48,7 +48,7 @@ START_Y = 0.875
 #             tmp = "Down"
         
     
-    # logging.info("Move " + str(num_squares) + " " + tmp)
+#     print("Move " + str(num_squares) + " " + tmp)
 
 # def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
 #     tmp = "Up-Left"
@@ -61,13 +61,13 @@ START_Y = 0.875
 #         if _dir_2 == 0:
 #             tmp = "Down-Left"
             
-#     logging.info("Move " + str(num_squares) + " " + tmp)
+#     print("Move " + str(num_squares) + " " + tmp)
     
 # def magnet_on():
-#     logging.info("Magnet On")
+#     print("Magnet On")
 
 # def magnet_off():
-#     logging.info("Magnet Off")
+#     print("Magnet Off")
   
   
 # PERMANENT FUNCTIONS
@@ -99,6 +99,12 @@ def move_num_squares_diagnol_helper(x_val, y_val):
 def execute_move(m):
     start_coord = (mapping[m[0][0]], int(m[0][1]) - 1)
     end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
+
+    #check if enpassant
+    if m[4] and int(m[1][1]) == 6:
+        end_coord = (mapping[m[1][0]], int(m[1][1]) - 2)    
+    elif m[4] and int(m[1][1]) == 3:
+        end_coord = (mapping[m[1][0]], int(m[1][1])) 
     
     if m[2]:
         # Go to end_coord, raise magnet
@@ -128,12 +134,15 @@ def execute_move(m):
             move_num_squares_helper(start_coord[0] - 9, True)
             move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
             magnet_on()
+    
+        # To fix en_passant end square
+        end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
 
     # Go to start square and raise magnet
     else:
         move_num_squares(1, 1, start_coord[0])
         move_num_squares(2, 1, start_coord[1])
-        magnet_on(  )
+        magnet_on()
     
     # Check if knight
     if m[3] == 2:
@@ -219,22 +228,23 @@ def make_move(board, move):
         #move = input("Enter a move: ")
         
         square_diction = board.parse_san(move)
-        is_cap = board.is_capture(square_diction)
-        logging.info(f"Attempted move: {move}")
-        board.push_san(move)
 
-        gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type)
+        is_cap = board.is_capture(square_diction)
+        print(f"Attempted move: {move}")
+        en_passant = board.is_en_passant(chess.Move.from_uci(square_diction.uci()))
+        board.push_san(move)
+        gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type, en_passant)
         s = str(board.legal_moves)
         s = s[s.find("(")+1:s.find(")")]
-        logging.info(gantry_move_format)
-        logging.info(f"\n{board}")
-        logging.info(s)
+        print(gantry_move_format)
+        print(f"\n{board}")
+        print(s)
         execute_move(gantry_move_format)
     except ValueError:
-        logging.info("\nEnter a valid move...")
+        print("\nEnter a valid move...")
     
     if board.is_checkmate():
-        logging.info("Checkmate!")
+        print("Checkmate!")
 
     # os._exit(1)
 
