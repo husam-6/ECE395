@@ -1,6 +1,13 @@
 # %% Libraries
 import pyfirmata
 import time
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO,
+)
 
 MOTOR_1 = 1
 MOTOR_2 = 2
@@ -10,9 +17,10 @@ MAGNET_PIN = 9
 STEPS_PER_SQ = 1.58
 
 DELAY = 400e-6
-board = pyfirmata.Arduino('/dev/cu.usbmodem14101')
-print("Communication Successfully started")
-print("Initializing limit switch params")
+logging.info("Attempting to connect to arduino...")
+board = pyfirmata.Arduino('/dev/cu.usbmodem141101')
+logging.info("Communication Successfully started")
+logging.info("Initializing limit switch params")
 
 # For limit switches
 LIMIT_1 = 12
@@ -45,13 +53,13 @@ def move_num_squares(motor=MOTOR_1, _dir=1, num_squares=1):
     board.digital[dir_pin].write(_dir)
     # 800 pulses = 1 revolution
     for i in range(bound):
-        #print(f"LIMIT SWITCH INPUT: {board.analog[ANALOG_PIN].read()}")
+        #logging.info(f"LIMIT SWITCH INPUT: {board.analog[ANALOG_PIN].read()}")
         if (board.digital[LIMIT_1].read() and _dir == 1 and motor == MOTOR_1) or (board.digital[LIMIT_2].read() and _dir == 0 and motor == MOTOR_1) or (board.digital[LIMIT_3].read() and _dir == 0 and motor == MOTOR_2) or (board.digital[LIMIT_4].read() and _dir == 1 and motor == MOTOR_2):
-            print("LIMIT SWITCH HIT" )
-            print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, Limit 2: {board.digital[LIMIT_2].read()}, Limit 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
+            logging.info("LIMIT SWITCH HIT" )
+            logging.info(f"LIMIT 1: {board.digital[LIMIT_1].read()}, Limit 2: {board.digital[LIMIT_2].read()}, Limit 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
             board.pass_time(1)
-            # print(f"LIMIT SWITCH: {board.digital[ANALOG_PIN1].read()}")
-            # print(f"LIMIT SWITCH: {board.digital[ANALOG_PIN2].read()}")
+            # logging.info(f"LIMIT SWITCH: {board.digital[ANALOG_PIN1].read()}")
+            # logging.info(f"LIMIT SWITCH: {board.digital[ANALOG_PIN2].read()}")
             return
         
 
@@ -77,7 +85,7 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
     # 800 pulses = 1 revolution
     for i in range(bound):
         if board.digital[LIMIT_1].read() or board.digital[LIMIT_2].read() or board.digital[LIMIT_3].read() or board.digital[LIMIT_4].read():
-            print("LIMIT SWITCH HIT" )
+            logging.info("LIMIT SWITCH HIT" )
             board.pass_time(1)
             return
         board.digital[step_pin_1].write(1)
@@ -92,7 +100,7 @@ def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
 def magnet_on():
     # Slow movement when we are moving a piece
     global DELAY
-    DELAY = 700e-6
+    DELAY = 800e-6
     board.digital[MAGNET_PIN].write(1)
     board.pass_time(2)
 
@@ -114,7 +122,7 @@ def test_one_at_time():
     squares = int(input("Enter number of squares to move: "))
     direc = int(input("Enter direction: "))
     motor = int(input("Enter motor to move: "))
-    print(f"Running motor {motor}")
+    logging.info(f"Running motor {motor}")
     move_num_squares(motor, direc, squares)
 
 if __name__ == "__main__":
@@ -130,7 +138,7 @@ if __name__ == "__main__":
             magnet_off()
         elif choice == 5:
             while True:
-                print(f"LIMIT 1: {board.digital[LIMIT_1].read()}, LIMIT 2: {board.digital[LIMIT_2].read()}, LIMIT 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
+                logging.info(f"LIMIT 1: {board.digital[LIMIT_1].read()}, LIMIT 2: {board.digital[LIMIT_2].read()}, LIMIT 3: {board.digital[LIMIT_3].read()}, Limit 4: {board.digital[LIMIT_4].read()}")
         else:
             test_one_at_time()
         board.pass_time(0.05)

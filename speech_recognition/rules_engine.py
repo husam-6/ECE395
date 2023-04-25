@@ -13,6 +13,7 @@ import arduino_control
 from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
 # from IPython.display import SVG
 # import speech
+import logging
 import time
 import os
 
@@ -29,7 +30,7 @@ mapping = {
 baseline_coord = (0,0)
 
 START_X = 1.15 + 3       # fix offset from edge of the board, move 3 squares to a1 square
-START_Y = 0.90
+START_Y = 0.875
 
 # TEMPORARY FUNCTIONS FOR PRINTING
 # Motor 1 = moves x axis
@@ -47,7 +48,7 @@ START_Y = 0.90
 #             tmp = "Down"
         
     
-    # print("Move " + str(num_squares) + " " + tmp)
+    # logging.info("Move " + str(num_squares) + " " + tmp)
 
 # def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
 #     tmp = "Up-Left"
@@ -60,13 +61,13 @@ START_Y = 0.90
 #         if _dir_2 == 0:
 #             tmp = "Down-Left"
             
-#     print("Move " + str(num_squares) + " " + tmp)
+#     logging.info("Move " + str(num_squares) + " " + tmp)
     
 # def magnet_on():
-#     print("Magnet On")
+#     logging.info("Magnet On")
 
 # def magnet_off():
-#     print("Magnet Off")
+#     logging.info("Magnet Off")
   
   
 # PERMANENT FUNCTIONS
@@ -108,7 +109,7 @@ def execute_move(m):
         magnet_on()
 
         # Move piece off the board
-        print(board.turn)
+        logging.info(board.turn)
         if board.turn:
             move_num_squares(2, 0, 1/2)
             move_num_squares(1, 0, end_coord[0] + 2)
@@ -139,11 +140,15 @@ def execute_move(m):
         # Move Knight
         if abs(end_coord[0] - start_coord[0]) == 1:
             move_num_squares_helper((end_coord[0] - start_coord[0]) / 2, True)
+            time.sleep(0.5)
             move_num_squares_helper(end_coord[1] - start_coord[1], False)
+            time.sleep(0.5)
             move_num_squares_helper((end_coord[0] - start_coord[0]) / 2, True)
         else:
             move_num_squares_helper((end_coord[1] - start_coord[1]) / 2, False)
+            time.sleep(0.5)
             move_num_squares_helper(end_coord[0] - start_coord[0], True)
+            time.sleep(0.5)
             move_num_squares_helper((end_coord[1] - start_coord[1]) / 2, False)
             
         # Turn magnet off and go to baseline square
@@ -158,7 +163,9 @@ def execute_move(m):
         move_num_squares(1, 1, 1)
         magnet_on()
         move_num_squares(2, 0, .5)
+        time.sleep(0.5)
         move_num_squares(1, 0, 2)
+        time.sleep(0.5)
         move_num_squares(2, 1, .5)
         
         magnet_off()
@@ -172,7 +179,9 @@ def execute_move(m):
         move_num_squares(1, 0, 2)
         magnet_on()
         move_num_squares(2, 0, .5)
+        time.sleep(0.5)
         move_num_squares(1, 1, 3)
+        time.sleep(0.5)
         move_num_squares(2, 1, .5)
         
         magnet_off()
@@ -200,9 +209,9 @@ def execute_move(m):
 def make_move(board, move):
 
     # if board.turn():
-    #     print("White's move: \n")
+    #     logging.info("White's move: \n")
     # else:
-    #     print("Black's move: \n")
+    #     logging.info("Black's move: \n")
     
     # moves = board.legal_moves
 
@@ -211,21 +220,21 @@ def make_move(board, move):
         
         square_diction = board.parse_san(move)
         is_cap = board.is_capture(square_diction)
-
+        logging.info(f"Attempted move: {move}")
         board.push_san(move)
 
         gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type)
         s = str(board.legal_moves)
         s = s[s.find("(")+1:s.find(")")]
-        print(gantry_move_format)
-        print(board)
-        print(s)
+        logging.info(gantry_move_format)
+        logging.info(f"\n{board}")
+        logging.info(s)
         execute_move(gantry_move_format)
     except ValueError:
-        print("\nEnter a valid move...")
+        logging.info("\nEnter a valid move...")
     
     if board.is_checkmate():
-        print("Checkmate!")
+        logging.info("Checkmate!")
 
     # os._exit(1)
 
@@ -240,7 +249,7 @@ move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
 board = chess.Board()
-print(board)
+logging.info(f"\n{board}")
 
 if __name__ == "__main__":
     while(True):

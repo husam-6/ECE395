@@ -9,7 +9,7 @@ To do:
 + when two pieces of the same kind can both access a square
 
 """
-import whisper
+# import whisper
 import pyaudio
 import wave
 from pydub import AudioSegment
@@ -18,11 +18,24 @@ import speech_recognition as sr
 import time
 import chess
 import chess.svg
-import rules_engine
+# import rules_engine
 from pocketsphinx import LiveSpeech
 import numpy as np
+import time
+import logging
+from whispercpp import Whisper
 
+# logging.basicConfig(
+#     format='%(asctime)s - %(levelname)s: %(message)s',
+#     datefmt='%Y-%m-%d %H:%M:%S',
+#     level=logging.INFO,
+# )
+
+# Bring in Whisper model (pre-trained)
+logging.info("Loading in whisper model")
 board = chess.Board()
+model = Whisper.from_pretrained("tiny.en")
+
 
 def get_move_from_audio():
     """Function to use python script to read in an audio recording
@@ -30,9 +43,6 @@ def get_move_from_audio():
     and transcribe it using OpenAI Whisper Model
     """
 
-    # Bring in Whisper model (pre-trained)
-    # options = whisper.DecodingOptions(fp16=False)
-    model = whisper.load_model("base")
 
     """ Code to record audio real time - obtained from 
 
@@ -40,21 +50,26 @@ def get_move_from_audio():
     fbclid=IwAR0uPIZmDCBPcaJoAT_g3jTU0UH9Oj-3J3BZw7jDsIwRIeHttc0GCxY7BKg
 
     """
-
+    
+    time.sleep(1);
     chunk = 1024  # Record in chunks of 1024 samples
     sample_format = pyaudio.paInt16  # 16 bits per sample
     channels = 1
-    fs = 44100  # Record at 44100 samples per second
+    # fs = 44100  # Record at 44100 samples per second
+    fs = 16000  # Record at 44100 samples per second
     seconds = 3
     filename = "output.wav"
 
     p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
-    print('Recording')
+    logging.info('Recording')
+    # for i in range(p.get_device_count()):
+    #     logging.info(p.get_device_info_by_index(i))
 
     stream = p.open(format=sample_format,
                     channels=channels,
                     rate=fs,
+                    input_device_index=0,
                     frames_per_buffer=chunk,
                     input=True)
 
@@ -71,7 +86,8 @@ def get_move_from_audio():
     # Terminate the PortAudio interface
     p.terminate()
 
-    print('Finished recording')
+    logging.info('Finished recording')
+    start_time = time.time()
 
     # Save the recorded data as a WAV file
     wf = wave.open(filename, 'wb')
@@ -80,13 +96,10 @@ def get_move_from_audio():
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
 
-    # Convert to MP3 file
-    sound = AudioSegment.from_wav(filename)
-    sound.export('output.mp3', format='mp3')
-
-    wf.close()
-
-    result = model.transcribe("output.mp3", fp16=False)
+    result = model.transcribe_from_file(filename)
+    logging.info(f"{result}")
+    end_time = time.time()
+    logging.info(f"Time taken to take in spoken move: {end_time - start_time}")
 
     return parse_text(result["text"])
 
@@ -100,7 +113,7 @@ def parse_text(text: str):
     
     process_string = text.split()
     
-    # print(process_string)
+    # logging.info(process_string)
 
     pieces = {"pawn" : "", 
             "rook" : "R",
@@ -112,7 +125,7 @@ def parse_text(text: str):
             "queen's": "Q", 
             "queen" : "Q"}
 
-    # print(process_string)
+    # logging.info(process_string)
 
     move = ""
 
@@ -144,17 +157,17 @@ def callback(recognizer, audio):  # this is called from the background thread
     keywords = [("chessboard", 1), ("chess", 1)]
     try:
         speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords).lower()
-        print(speech_as_text)
+        logging.info(speech_as_text)
 
         if "chess" in speech_as_text:
             get_move_from_audio()
 
     except sr.UnknownValueError:
-        print("Oops! Didn't catch that")
+        logging.info("Oops! Didn't catch that")
 
 
 def start_recognizer():
-    print("Listening in background")
+    logging.info("Listening in background")
     r = sr.Recognizer()
     source = sr.Microphone(0)
     with source as s:
@@ -164,6 +177,7 @@ def start_recognizer():
 
 
 if __name__ == "__main__":
-    print(board)
+    logging.info(f"\n{board}")
+    logging.info(sr.Microphone.list_microphone_names())
     start_recognizer()
-    # getMoveFromAudio()
+    # get_move_from_audio()
