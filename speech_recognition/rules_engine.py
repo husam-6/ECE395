@@ -230,21 +230,21 @@ def make_move(board, move):
         square_diction = board.parse_san(move)
 
         is_cap = board.is_capture(square_diction)
-        print(f"Attempted move: {move}")
+        logging.info(f"Attempted move: {move}")
         en_passant = board.is_en_passant(chess.Move.from_uci(square_diction.uci()))
         board.push_san(move)
         gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type, en_passant)
         s = str(board.legal_moves)
         s = s[s.find("(")+1:s.find(")")]
-        print(gantry_move_format)
-        print(f"\n{board}")
-        print(s)
+        logging.info(gantry_move_format)
+        logging.info(f"\n{board}")
+        logging.info(s)
         execute_move(gantry_move_format)
     except ValueError:
-        print("\nEnter a valid move...")
+        logging.info("\nEnter a valid move...")
     
     if board.is_checkmate():
-        print("Checkmate!")
+        logging.info("Checkmate!")
 
     # os._exit(1)
 
