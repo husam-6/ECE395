@@ -99,14 +99,14 @@ def move_num_squares_diagnol_helper(x_val, y_val):
 def execute_move(m):
     start_coord = (mapping[m[0][0]], int(m[0][1]) - 1)
     end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
-
-    #check if enpassant
-    if m[4] and int(m[1][1]) == 6:
-        end_coord = (mapping[m[1][0]], int(m[1][1]) - 2)    
-    elif m[4] and int(m[1][1]) == 3:
-        end_coord = (mapping[m[1][0]], int(m[1][1])) 
-    
+  
     if m[2]:
+        #check if en passant
+        if m[4] and int(m[1][1]) == 6:
+            end_coord = (mapping[m[1][0]], int(m[1][1]) - 2)    
+        elif m[4] and int(m[1][1]) == 3:
+            end_coord = (mapping[m[1][0]], int(m[1][1]))
+
         # Go to end_coord, raise magnet
         # Go down 1/2, then off the board
         # Then go back to start_coord
@@ -135,7 +135,7 @@ def execute_move(m):
             move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
             magnet_on()
     
-        # To fix en_passant end square
+        # To fix en passant end square
         end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
 
     # Go to start square and raise magnet
