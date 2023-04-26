@@ -9,8 +9,8 @@ import sys
 from numpy import square
 import chess
 import chess.svg
-import arduino_control 
-from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
+#import arduino_control 
+#from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
 # from IPython.display import SVG
 # import speech
 import logging
@@ -36,38 +36,38 @@ START_Y = 0.875
 # Motor 1 = moves x axis
 # Motor 2 = moves y axis
 # Direction: 1 means to the right (or up), 0 means to the left (or down)
-# def move_num_squares(motor=1, _dir=1, num_squares=1):
-#     tmp = "Up"
-#     if motor == 1:
-#         if _dir == 1:
-#             tmp = "Right"
-#         else:
-#             tmp = "Left"
-#     else:
-#         if _dir == 0:
-#             tmp = "Down"
+def move_num_squares(motor=1, _dir=1, num_squares=1):
+    tmp = "Up"
+    if motor == 1:
+        if _dir == 1:
+            tmp = "Right"
+        else:
+            tmp = "Left"
+    else:
+        if _dir == 0:
+            tmp = "Down"
         
     
-#     print("Move " + str(num_squares) + " " + tmp)
+    print("Move " + str(num_squares) + " " + tmp)
 
-# def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
-#     tmp = "Up-Left"
-#     if _dir_1 == 1:
-#         if _dir_2 == 1:
-#             tmp = "Up-Right"
-#         else:
-#             tmp = "Down-Right"
-#     else:
-#         if _dir_2 == 0:
-#             tmp = "Down-Left"
+def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
+    tmp = "Up-Left"
+    if _dir_1 == 1:
+        if _dir_2 == 1:
+            tmp = "Up-Right"
+        else:
+            tmp = "Down-Right"
+    else:
+        if _dir_2 == 0:
+            tmp = "Down-Left"
             
-#     print("Move " + str(num_squares) + " " + tmp)
+    print("Move " + str(num_squares) + " " + tmp)
     
-# def magnet_on():
-#     print("Magnet On")
+def magnet_on():
+    print("Magnet On")
 
-# def magnet_off():
-#     print("Magnet Off")
+def magnet_off():
+    print("Magnet Off")
   
   
 # PERMANENT FUNCTIONS
@@ -115,7 +115,7 @@ def execute_move(m):
         magnet_on()
 
         # Move piece off the board
-        logging.info(board.turn)
+        # print(board.turn)
         if board.turn:
             move_num_squares(2, 0, 1/2)
             move_num_squares(1, 0, end_coord[0] + 2)
@@ -209,6 +209,35 @@ def execute_move(m):
         else:
             move_num_squares_diagnol_helper(end_coord[0] - start_coord[0], end_coord[1] - start_coord[1])
         
+        # Check if pawn promotion to Queen
+        if m[5]:
+            # Move pawn off board and get queen
+            if board.turn:
+                time.sleep(1)
+                move_num_squares(2, 0, 1/2)
+                move_num_squares(1, 0, end_coord[0] + 2)
+                magnet_off()
+                move_num_squares(2, 1, 1/2)
+                move_num_squares(1, 1, 11)
+                magnet_on()
+                move_num_squares(2, 0, 1/2)
+                move_num_squares(1, 0, 7 - end_coord[0] + 2)
+                move_num_squares(2, 1, 1/2)
+
+            else:
+                time.sleep(1)
+                move_num_squares(2, 0, 1/2)
+                move_num_squares(1, 1, 7 - end_coord[0] + 2)
+                magnet_off()
+                move_num_squares(2, 1, 1/2)
+                move_num_squares(1, 0, 11)
+                magnet_on()
+                move_num_squares(2, 0, 1/2)
+                move_num_squares(1, 1, end_coord[0] + 2)
+                move_num_squares(2, 1, 1/2)
+
+
+
         # Turn magnet off and go to baseline square
         magnet_off()
         move_num_squares(1, 0, end_coord[0])
@@ -229,22 +258,34 @@ def make_move(board, move):
         
         square_diction = board.parse_san(move)
 
+        promotion = False
+        print()
+        if len(square_diction.uci()) == 5 and square_diction.uci()[4] == 'q':
+            promotion = True
+
         is_cap = board.is_capture(square_diction)
-        logging.info(f"Attempted move: {move}")
+        print(f"Attempted move: {move}")
+
         en_passant = board.is_en_passant(chess.Move.from_uci(square_diction.uci()))
+
         board.push_san(move)
-        gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type, en_passant)
+
+        gantry_move_format = (square_diction.uci()[:2], square_diction.uci()[2:4], is_cap, board.piece_at(chess.parse_square(square_diction.uci()[2:4])).piece_type, en_passant, promotion)
+        
         s = str(board.legal_moves)
         s = s[s.find("(")+1:s.find(")")]
-        logging.info(gantry_move_format)
-        logging.info(f"\n{board}")
-        logging.info(s)
+
+        print(gantry_move_format)
+        print(f"\n{board}")
+        print(s)
+
         execute_move(gantry_move_format)
+
     except ValueError:
-        logging.info("\nEnter a valid move...")
+        print("\nEnter a valid move...")
     
     if board.is_checkmate():
-        logging.info("Checkmate!")
+        print("Checkmate!")
 
     # os._exit(1)
 
@@ -259,7 +300,7 @@ move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
 board = chess.Board()
-logging.info(f"\n{board}")
+print(f"\n{board}")
 
 if __name__ == "__main__":
     while(True):
