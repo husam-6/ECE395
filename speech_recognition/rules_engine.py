@@ -259,12 +259,11 @@ def make_move(board, move):
         square_diction = board.parse_san(move)
 
         promotion = False
-        print()
         if len(square_diction.uci()) == 5 and square_diction.uci()[4] == 'q':
             promotion = True
 
         is_cap = board.is_capture(square_diction)
-        print(f"Attempted move: {move}")
+        logging.info(f"Attempted move: {move}")
 
         en_passant = board.is_en_passant(chess.Move.from_uci(square_diction.uci()))
 
@@ -275,17 +274,17 @@ def make_move(board, move):
         s = str(board.legal_moves)
         s = s[s.find("(")+1:s.find(")")]
 
-        print(gantry_move_format)
-        print(f"\n{board}")
-        print(s)
+        logging.info(gantry_move_format)
+        logging.info(f"\n{board}")
+        logging.info(s)
 
         execute_move(gantry_move_format)
 
     except ValueError:
-        print("\nEnter a valid move...")
+        logging.info("\nEnter a valid move...")
     
     if board.is_checkmate():
-        print("Checkmate!")
+        logging.info("Checkmate!")
 
     # os._exit(1)
 
@@ -300,7 +299,7 @@ move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
 board = chess.Board()
-print(f"\n{board}")
+logging.info(f"\n{board}")
 
 if __name__ == "__main__":
     while(True):
