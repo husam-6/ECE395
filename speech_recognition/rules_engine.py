@@ -9,8 +9,8 @@ import sys
 from numpy import square
 import chess
 import chess.svg
-#import arduino_control 
-#from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
+import arduino_control 
+from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
 # from IPython.display import SVG
 # import speech
 import logging
@@ -36,38 +36,38 @@ START_Y = 0.875
 # Motor 1 = moves x axis
 # Motor 2 = moves y axis
 # Direction: 1 means to the right (or up), 0 means to the left (or down)
-def move_num_squares(motor=1, _dir=1, num_squares=1):
-    tmp = "Up"
-    if motor == 1:
-        if _dir == 1:
-            tmp = "Right"
-        else:
-            tmp = "Left"
-    else:
-        if _dir == 0:
-            tmp = "Down"
+# def move_num_squares(motor=1, _dir=1, num_squares=1):
+#     tmp = "Up"
+#     if motor == 1:
+#         if _dir == 1:
+#             tmp = "Right"
+#         else:
+#             tmp = "Left"
+#     else:
+#         if _dir == 0:
+#             tmp = "Down"
         
     
-    print("Move " + str(num_squares) + " " + tmp)
+#     print("Move " + str(num_squares) + " " + tmp)
 
-def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
-    tmp = "Up-Left"
-    if _dir_1 == 1:
-        if _dir_2 == 1:
-            tmp = "Up-Right"
-        else:
-            tmp = "Down-Right"
-    else:
-        if _dir_2 == 0:
-            tmp = "Down-Left"
+# def move_num_squares_diagonal(_dir_1=1, _dir_2=1, num_squares=1):
+#     tmp = "Up-Left"
+#     if _dir_1 == 1:
+#         if _dir_2 == 1:
+#             tmp = "Up-Right"
+#         else:
+#             tmp = "Down-Right"
+#     else:
+#         if _dir_2 == 0:
+#             tmp = "Down-Left"
             
-    print("Move " + str(num_squares) + " " + tmp)
+#     print("Move " + str(num_squares) + " " + tmp)
     
-def magnet_on():
-    print("Magnet On")
+# def magnet_on():
+#     print("Magnet On")
 
-def magnet_off():
-    print("Magnet Off")
+# def magnet_off():
+#     print("Magnet Off")
   
   
 # PERMANENT FUNCTIONS
