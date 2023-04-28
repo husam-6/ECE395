@@ -17,6 +17,13 @@ import logging
 import time
 import os
 
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO,
+)
+
+
 mapping = {
     'a': 0,
     'b': 1,
@@ -118,20 +125,24 @@ def execute_move(m):
         # print(board.turn)
         if board.turn:
             move_num_squares(2, 0, 1/2)
-            move_num_squares(1, 0, end_coord[0] + 2)
+            time.sleep(.5)
+            move_num_squares(1, 0, end_coord[0] + 3)
             magnet_off()
 
             # Move to start square
-            move_num_squares_helper(start_coord[0] + 2, True)
+            move_num_squares_helper(start_coord[0] + 3, True)
+            time.sleep(.5)
             move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
             magnet_on()
         else:
             move_num_squares(2, 0, 1/2)
-            move_num_squares(1, 1, 7 - end_coord[0] + 2)
+            time.sleep(.5)
+            move_num_squares(1, 1, 7 - end_coord[0] + 3)
             magnet_off()
 
             # Move to start square
-            move_num_squares_helper(start_coord[0] - 9, True)
+            move_num_squares_helper(start_coord[0] - 10, True)
+            time.sleep(.5)
             move_num_squares_helper(start_coord[1] - (end_coord[1] - 1/2), False)
             magnet_on()
     
@@ -212,29 +223,30 @@ def execute_move(m):
         # Check if pawn promotion to Queen
         if m[5]:
             # Move pawn off board and get queen
-            if board.turn:
+            if not board.turn:
                 time.sleep(1)
                 move_num_squares(2, 0, 1/2)
-                move_num_squares(1, 0, end_coord[0] + 2)
+                move_num_squares(1, 0, end_coord[0] + 3)
                 magnet_off()
                 move_num_squares(2, 1, 1/2)
-                move_num_squares(1, 1, 11)
+                move_num_squares(1, 1, 1)
                 magnet_on()
                 move_num_squares(2, 0, 1/2)
-                move_num_squares(1, 0, 7 - end_coord[0] + 2)
+                move_num_squares(1, 1, end_coord[0] + 2)
                 move_num_squares(2, 1, 1/2)
 
             else:
                 time.sleep(1)
                 move_num_squares(2, 0, 1/2)
-                move_num_squares(1, 1, 7 - end_coord[0] + 2)
+                move_num_squares(1, 1, 7 - end_coord[0] + 3)
                 magnet_off()
                 move_num_squares(2, 1, 1/2)
-                move_num_squares(1, 0, 11)
+                move_num_squares(1, 0, 1)
                 magnet_on()
                 move_num_squares(2, 0, 1/2)
-                move_num_squares(1, 1, end_coord[0] + 2)
+                move_num_squares(1, 0, 7 - end_coord[0] + 2)
                 move_num_squares(2, 1, 1/2)
+                
 
 
 
@@ -298,7 +310,7 @@ move_num_squares(1, 1, START_X)
 move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
-board = chess.Board()
+board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
 logging.info(f"\n{board}")
 
 if __name__ == "__main__":

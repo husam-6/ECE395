@@ -70,7 +70,7 @@ def get_move_from_audio():
     stream = p.open(format=sample_format,
                     channels=channels,
                     rate=fs,
-                    input_device_index=0,
+                    input_device_index=1,
                     frames_per_buffer=chunk,
                     input=True)
 
@@ -101,7 +101,7 @@ def get_move_from_audio():
     logging.info(f"{result}")
     end_time = time.time()
     logging.info(f"Time taken to transcribe move: {end_time - start_time}")
-
+    logging.info(f"Parsed: {parse_text(result)}")
     return parse_text(result)
 
 
@@ -121,32 +121,44 @@ def parse_text(text: str):
             "bishop" : "B", 
             "knight": "N", 
             "night": "N", 
+            "9": "N", 
+            "ninth": "N", 
             "king" : "K",
             "king's": "K",
             "queen's": "Q", 
-            "queen" : "Q"}
+            "queen" : "Q",
+            "see":  "c",
+            "be":   "b",
+            "bee":  "b",
+            }
 
     # logging.info(process_string)
 
     move = ""
-
+    logging.info(process_string)
     for item in process_string:
         # If the word is a piece...
-        if re.match("^(?=.*[a-zA-Z])", item) and len(item) == 1:
+        if re.match("^([a-hA-H])", item) and len(item) == 1:
             move += item.lower()
-        if item.lower() in pieces:
+        elif item.lower() in pieces:
             move += pieces[item.lower()]
-        # If the word is the square to move to...
-        if (item.lower() == "takes"):
-            move += 'x'
-        if(re.match("^(?=.*[a-zA-Z])(?=.*[0-9])", item) and len(item) == 2):
+        elif(re.match("^([a-hA-H])", item) and len(item) == 2):
             move += item.lower()
-        
-        if item.lower() == "castle":
+        # If the word is the square to move to...
+        elif (item.lower() == "takes"):
+            move += 'x'
+        elif(re.match("^([a-hA-H])([0-9])", item) and len(item) == 2):
+            move += item.lower()
+        elif item.lower() == "castle":
             if move == "Q":
                 move = "O-O-O"
             else:
                 move = "O-O"
+
+    # Figure out if its a pawn promotion
+    if move != '':
+        if not move[0].isupper() and (move[-1]=='8' or move[-1]=='1'):  
+            move = move + "=Q"
 
     rules_engine.make_move(board, move)
     return move
@@ -170,7 +182,7 @@ def callback(recognizer, audio):  # this is called from the background thread
 def start_recognizer():
     logging.info("Listening in background")
     r = sr.Recognizer()
-    source = sr.Microphone(0)
+    source = sr.Microphone(1)
     with source as s:
         r.adjust_for_ambient_noise(s)  
     r.listen_in_background(source, callback)
