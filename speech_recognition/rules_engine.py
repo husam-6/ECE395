@@ -15,7 +15,7 @@ from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_
 # import speech
 import logging
 import time
-import os
+import os 
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s: %(message)s',
@@ -258,10 +258,12 @@ def execute_move(m):
 
 def make_move(board, move):
 
-    # if board.turn():
-    #     logging.info("White's move: \n")
-    # else:
-    #     logging.info("Black's move: \n")
+    if board.turn:
+        logging.info("White's move: \n")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('WHITE TO MOVE!'))
+    else:
+        logging.info("Black's move: \n")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('BLACK TO MOVE!'))
     
     # moves = board.legal_moves
 
@@ -297,6 +299,7 @@ def make_move(board, move):
     
     if board.is_checkmate():
         logging.info("Checkmate!")
+        exit(2)
 
     # os._exit(1)
 
@@ -310,7 +313,8 @@ move_num_squares(1, 1, START_X)
 move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
-board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
+# board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
+board = chess.Board()
 logging.info(f"\n{board}")
 
 if __name__ == "__main__":

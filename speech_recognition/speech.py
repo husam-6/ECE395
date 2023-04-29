@@ -19,6 +19,7 @@ import time
 import chess
 import chess.svg
 import rules_engine
+import arduino_control
 from pocketsphinx import LiveSpeech
 import numpy as np
 import time
@@ -64,6 +65,7 @@ def get_move_from_audio():
     p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
     logging.info('Recording')
+    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('RECORDING'))
     # for i in range(p.get_device_count()):
     #     logging.info(p.get_device_info_by_index(i))
 
@@ -102,6 +104,7 @@ def get_move_from_audio():
     end_time = time.time()
     logging.info(f"Time taken to transcribe move: {end_time - start_time}")
     logging.info(f"Parsed: {parse_text(result)}")
+    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f'PARSED: {parse_text(result)}'))
     return parse_text(result)
 
 
@@ -172,7 +175,7 @@ def callback(recognizer, audio):  # this is called from the background thread
         speech_as_text = recognizer.recognize_sphinx(audio, keyword_entries=keywords).lower()
         logging.info(speech_as_text)
 
-        if "chess" in speech_as_text:
+        if ("chess" in speech_as_text) or ("hey chess" in speech_as_text):
             get_move_from_audio()
 
     except sr.UnknownValueError:

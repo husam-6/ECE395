@@ -1,5 +1,6 @@
 # %% Libraries
 import pyfirmata
+from pyfirmata import util, STRING_DATA
 import time
 import logging
 
@@ -11,14 +12,14 @@ logging.basicConfig(
 
 MOTOR_1 = 1
 MOTOR_2 = 2
-MOTOR_1_PINS = (2, 4)       # (DIR, STEP)
+MOTOR_1_PINS = (8, 7)       # (DIR, STEP)
 MOTOR_2_PINS = (5, 6)       # (DIR, STEP)
 MAGNET_PIN = 9
 STEPS_PER_SQ = 1.58
 
 DELAY = 400e-6
 logging.info("Attempting to connect to arduino...")
-board = pyfirmata.Arduino('/dev/cu.usbmodem141101')
+board = pyfirmata.Arduino('/dev/cu.usbmodem144201')
 logging.info("Communication Successfully started")
 logging.info("Initializing limit switch params")
 
