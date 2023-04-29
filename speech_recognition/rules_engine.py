@@ -174,8 +174,13 @@ def execute_move(m):
             
         # Turn magnet off and go to baseline square
         magnet_off()
+        end_time = time.time()
+        logging.info(f"Time taken to make move: {end_time - start_time}")
+        start_time = time.time()
         move_num_squares(1, 0, end_coord[0])
         move_num_squares(2, 0, end_coord[1])
+        end_time = time.time()
+        logging.info(f"Time taken to recalibrate: {end_time - start_time}")
         
     # Check if kingside castle
     elif (m[3] == 6 and start_coord == (4, 0) and end_coord == (6, 0)) or (m[3] == 6 and start_coord == (4, 7) and end_coord == (6, 7)):
@@ -190,8 +195,13 @@ def execute_move(m):
         move_num_squares(2, 1, .5)
         
         magnet_off()
+        end_time = time.time()
+        logging.info(f"Time taken to make move: {end_time - start_time}")
+        start_time = time.time()
         move_num_squares(1, 0, end_coord[0] - 1)
         move_num_squares(2, 0, end_coord[1])
+        end_time = time.time()
+        logging.info(f"Time taken to recalibrate: {end_time - start_time}")
          
     # Check if queenside castle
     elif (m[3] == 6 and start_coord == (4, 0) and end_coord == (2, 0)) or (m[3] == 6 and start_coord == (4, 7) and end_coord == (2, 7)):
@@ -206,8 +216,13 @@ def execute_move(m):
         move_num_squares(2, 1, .5)
         
         magnet_off()
+        end_time = time.time()
+        logging.info(f"Time taken to make move: {end_time - start_time}")
+        start_time = time.time()
         move_num_squares(1, 0, end_coord[0] + 1)
         move_num_squares(2, 0, end_coord[1])
+        end_time = time.time()
+        logging.info(f"Time taken to recalibrate: {end_time - start_time}")
         
     else:
         # Move piece
