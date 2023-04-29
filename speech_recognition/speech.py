@@ -12,7 +12,7 @@ To do:
 # import whisper
 import pyaudio
 import wave
-from pydub import AudioSegment
+#from pydub import AudioSegment
 import re
 import speech_recognition as sr
 import time
@@ -53,7 +53,7 @@ def get_move_from_audio():
 
     """
     
-    time.sleep(1);
+    #time.sleep(1);
     chunk = 1024  # Record in chunks of 1024 samples
     sample_format = pyaudio.paInt16  # 16 bits per sample
     channels = 1
@@ -90,8 +90,8 @@ def get_move_from_audio():
     p.terminate()
 
     logging.info('Finished recording')
-    start_time = time.time()
 
+    start_time = time.time()
     # Save the recorded data as a WAV file
     wf = wave.open(filename, 'wb')
     wf.setnchannels(channels)

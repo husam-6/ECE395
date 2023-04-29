@@ -19,7 +19,7 @@ STEPS_PER_SQ = 1.58
 
 DELAY = 400e-6
 logging.info("Attempting to connect to arduino...")
-board = pyfirmata.Arduino('/dev/cu.usbmodem144201')
+board = pyfirmata.Arduino('/dev/cu.usbmodem142201')
 logging.info("Communication Successfully started")
 logging.info("Initializing limit switch params")
 

@@ -104,6 +104,7 @@ def move_num_squares_diagnol_helper(x_val, y_val):
 
 # Assume we start in the middle of square a1 (bottom left of the board)
 def execute_move(m):
+    start_time = time.time()
     start_coord = (mapping[m[0][0]], int(m[0][1]) - 1)
     end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
   
@@ -252,8 +253,13 @@ def execute_move(m):
 
         # Turn magnet off and go to baseline square
         magnet_off()
+        end_time = time.time()
+        logging.info(f"Time taken to make move: {end_time - start_time}")
+        start_time = time.time()
         move_num_squares(1, 0, end_coord[0])
         move_num_squares(2, 0, end_coord[1])
+        end_time = time.time()
+        logging.info(f"Time taken to recalibrate: {end_time - start_time}")
         
 
 def make_move(board, move):
