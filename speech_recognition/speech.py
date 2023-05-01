@@ -35,8 +35,10 @@ logging.basicConfig(
 
 # Bring in Whisper model (pre-trained)
 logging.info("Loading in whisper model")
-board = chess.Board()
+# board = chess.Board()
+# board = chess.Board(fen="r1bqk2r/2p1bpp1/p1n1p2p/1p1p4/3Pn3/NQPRBNP1/PP2PP1P/2K2B1R b kq - 0 1")
 model = Whisper.from_pretrained("tiny.en")
+# model = Whisper.from_pretrained("base.en")
 
 
 def get_move_from_audio():
@@ -90,6 +92,7 @@ def get_move_from_audio():
     p.terminate()
 
     logging.info('Finished recording')
+    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('DONE RECORDING'))
 
     start_time = time.time()
     # Save the recorded data as a WAV file
@@ -99,13 +102,17 @@ def get_move_from_audio():
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
 
+    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('TRANSCRIBING'))
     result = model.transcribe_from_file(filename)
     logging.info(f"{result}")
     end_time = time.time()
     logging.info(f"Time taken to transcribe move: {end_time - start_time}")
-    logging.info(f"Parsed: {parse_text(result)}")
-    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f'PARSED: {parse_text(result)}'))
-    return parse_text(result)
+    move = parse_text(result)
+    logging.info(f"Parsed: {move}")
+    arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f'PARSED: {move}'))
+    global board
+    rules_engine.make_move(board, move)
+    # rules_engine.make_move(board, move)
 
 
 def parse_text(text: str):
@@ -133,6 +140,10 @@ def parse_text(text: str):
             "see":  "c",
             "be":   "b",
             "bee":  "b",
+            "9":    "N",
+            "nine":    "N",
+            "ninth":    "N",
+            "nice":    "N",
             }
 
     # logging.info(process_string)
@@ -141,10 +152,10 @@ def parse_text(text: str):
     logging.info(process_string)
     for item in process_string:
         # If the word is a piece...
-        if re.match("^([a-hA-H])", item) and len(item) == 1:
-            move += item.lower()
-        elif item.lower() in pieces:
+        if item.lower() in pieces:
             move += pieces[item.lower()]
+        elif re.match("^([a-hA-H])", item) and len(item) == 1:
+            move += item.lower()
         elif(re.match("^([a-hA-H])", item) and len(item) == 2):
             move += item.lower()
         # If the word is the square to move to...
@@ -163,7 +174,6 @@ def parse_text(text: str):
         if not move[0].isupper() and (move[-1]=='8' or move[-1]=='1'):  
             move = move + "=Q"
 
-    rules_engine.make_move(board, move)
     return move
 
 
@@ -195,5 +205,10 @@ def start_recognizer():
 if __name__ == "__main__":
     logging.info(f"\n{board}")
     logging.info(sr.Microphone.list_microphone_names())
+    if board.turn:
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('WHITES TURN!'))
+    else:
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('BLACKS TURN!'))
+
     start_recognizer()
     # get_move_from_audio()

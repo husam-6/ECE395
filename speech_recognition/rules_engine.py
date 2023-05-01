@@ -103,7 +103,7 @@ def move_num_squares_diagnol_helper(x_val, y_val):
             move_num_squares_diagonal(1, 1, abs(x_val))
 
 # Assume we start in the middle of square a1 (bottom left of the board)
-def execute_move(m):
+def execute_move(m, board):
     start_time = time.time()
     start_coord = (mapping[m[0][0]], int(m[0][1]) - 1)
     end_coord = (mapping[m[1][0]], int(m[1][1]) - 1)
@@ -278,13 +278,6 @@ def execute_move(m):
         
 
 def make_move(board, move):
-
-    if board.turn:
-        logging.info("White's move: \n")
-        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('WHITE TO MOVE!'))
-    else:
-        logging.info("Black's move: \n")
-        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('BLACK TO MOVE!'))
     
     # moves = board.legal_moves
 
@@ -313,14 +306,24 @@ def make_move(board, move):
         logging.info(f"\n{board}")
         logging.info(s)
 
-        execute_move(gantry_move_format)
+        execute_move(gantry_move_format, board)
 
     except ValueError:
         logging.info("\nEnter a valid move...")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('INVALID MOVE'))
+        
     
     if board.is_checkmate():
         logging.info("Checkmate!")
-        exit(2)
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('CHECKMATE'))
+        exit(0)
+
+    if board.turn:
+        logging.info("White's move: \n")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('WHITE TO MOVE!'))
+    else:
+        logging.info("Black's move: \n")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter('BLACK TO MOVE!'))
 
     # os._exit(1)
 
@@ -335,12 +338,12 @@ move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
 # board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
-board = chess.Board()
-logging.info(f"\n{board}")
+# board = chess.Board()
+# logging.info(f"\n{board}")
 
-if __name__ == "__main__":
-    while(True):
-        move = input("What is your chess move?\n")
-        make_move(board, move)
+# if __name__ == "__main__":
+    # while(True):
+    #     move = input("What is your chess move?\n")
+    #     make_move(board, move)
 
 
