@@ -13,6 +13,7 @@ import arduino_control
 from arduino_control import move_num_squares, move_num_squares_diagonal, magnet_on, magnet_off
 # from IPython.display import SVG
 # import speech
+from stockfish import Stockfish
 import logging
 import time
 import os 
@@ -337,13 +338,67 @@ move_num_squares(1, 1, START_X)
 move_num_squares(2, 1, START_Y)
 
 # Temporary for path algo testing
-# board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
-# board = chess.Board()
-# logging.info(f"\n{board}")
 
-# if __name__ == "__main__":
-    # while(True):
-    #     move = input("What is your chess move?\n")
-    #     make_move(board, move)
 
+
+
+def human_vs_human(board):
+    while(True):
+        move = input("What is your chess move?\n")
+        make_move(board, move)
+
+
+def comp_vs_comp(board, stockfish):
+    while(True):
+        time.sleep(2)
+        stockfish_move = stockfish.get_best_move()
+        print(f"Engine move: {stockfish_move}")
+        tmp_move = chess.Move.from_uci(stockfish_move)
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f"Engine move: {board.san(tmp_move)}"))
+        san_move = board.parse_san(stockfish_move)
+        make_move(board, stockfish_move)
+        stockfish.make_moves_from_current_position([san_move])
+
+
+def comp_vs_human(board, stockfish):
+    color = input("Would you like to play as white or black? (1 for white, 2 for black): ")
+    color = int(color)
+
+    if (color == 1):
+        color = True
+    elif (color == 2):
+        color = False
+
+    while(True):
+        if board.turn != color:
+            time.sleep(2)
+            stockfish_move = stockfish.get_best_move()
+            logging.info(f"Engine move: {stockfish_move}")
+            tmp_move = chess.Move.from_uci(stockfish_move)
+            arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f"Engine move: {board.san(tmp_move)}"))
+            san_move = board.parse_san(stockfish_move)
+            make_move(board, stockfish_move)
+            stockfish.make_moves_from_current_position([san_move])
+            continue
+
+        move = input("Enter your move: ")
+        san_move = board.parse_san(move)
+        make_move(board, move)
+        stockfish.make_moves_from_current_position([san_move])
+
+
+if __name__ == "__main__":
+    # board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
+    board = chess.Board()
+    logging.info(f"\n{board}")
+    print("What type of game would you like?")
+    type_game = input("(1) Player vs Player, (2) Player vs Computer, or (3) Computer vs Computer? (1, 2, or 3): ")
+    type_game = int(type_game)
+    stockfish = Stockfish(depth=10)
+    if (type_game == 1):
+        human_vs_human(board)
+    elif (type_game == 2):
+        comp_vs_human(board, stockfish)
+    else:
+        comp_vs_comp(board, stockfish)
 

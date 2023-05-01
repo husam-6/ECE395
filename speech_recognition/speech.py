@@ -35,7 +35,7 @@ logging.basicConfig(
 
 # Bring in Whisper model (pre-trained)
 logging.info("Loading in whisper model")
-# board = chess.Board()
+board = chess.Board()
 # board = chess.Board(fen="r1bqk2r/2p1bpp1/p1n1p2p/1p1p4/3Pn3/NQPRBNP1/PP2PP1P/2K2B1R b kq - 0 1")
 model = Whisper.from_pretrained("tiny.en")
 # model = Whisper.from_pretrained("base.en")
