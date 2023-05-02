@@ -19,7 +19,7 @@ STEPS_PER_SQ = 1.58
 
 DELAY = 400e-6
 logging.info("Attempting to connect to arduino...")
-board = pyfirmata.Arduino('/dev/cu.usbmodem142201')
+board = pyfirmata.Arduino('/dev/cu.usbmodem141301')
 logging.info("Communication Successfully started")
 logging.info("Initializing limit switch params")
 
@@ -120,7 +120,7 @@ def test_both():
 
 
 def test_one_at_time():
-    squares = int(input("Enter number of squares to move: "))
+    squares = float(input("Enter number of squares to move: "))
     direc = int(input("Enter direction: "))
     motor = int(input("Enter motor to move: "))
     logging.info(f"Running motor {motor}")

@@ -330,6 +330,7 @@ def make_move(board, move):
 
 # Initialization 
 # Get to start square by going to edge of board
+arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter("INITIALIZING"))
 move_num_squares(1, 0, 300)
 move_num_squares(2, 0, 300)
 
@@ -345,6 +346,7 @@ move_num_squares(2, 1, START_Y)
 def human_vs_human(board):
     while(True):
         move = input("What is your chess move?\n")
+        arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f"MOVE: {move}"))
         make_move(board, move)
 
 
@@ -373,8 +375,8 @@ def comp_vs_human(board, stockfish):
         if board.turn != color:
             time.sleep(2)
             stockfish_move = stockfish.get_best_move()
-            logging.info(f"Engine move: {stockfish_move}")
             tmp_move = chess.Move.from_uci(stockfish_move)
+            logging.info(f"Engine move: {board.san(tmp_move)}")
             arduino_control.board.send_sysex(arduino_control.STRING_DATA, arduino_control.util.str_to_two_byte_iter(f"Engine move: {board.san(tmp_move)}"))
             san_move = board.parse_san(stockfish_move)
             make_move(board, stockfish_move)
@@ -389,12 +391,12 @@ def comp_vs_human(board, stockfish):
 
 if __name__ == "__main__":
     # board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
-    board = chess.Board()
+    board = chess.Board(fen="6k1/RP5p/6p1/5pq1/8/2N5/1PbP2P1/7K b - - 0 1")
     logging.info(f"\n{board}")
     print("What type of game would you like?")
     type_game = input("(1) Player vs Player, (2) Player vs Computer, or (3) Computer vs Computer? (1, 2, or 3): ")
     type_game = int(type_game)
-    stockfish = Stockfish(depth=10)
+    stockfish = Stockfish(depth=18)
     if (type_game == 1):
         human_vs_human(board)
     elif (type_game == 2):
