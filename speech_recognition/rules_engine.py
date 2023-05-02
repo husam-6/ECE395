@@ -391,7 +391,8 @@ def comp_vs_human(board, stockfish):
 
 if __name__ == "__main__":
     # board = chess.Board(fen="rnbqkbnr/pPpppp1p/8/8/8/8/P1PPPPpP/RNBQKBNR w KQkq - 0 1")
-    board = chess.Board(fen="6k1/RP5p/6p1/5pq1/8/2N5/1PbP2P1/7K b - - 0 1")
+    # board = chess.Board(fen="6k1/RP5p/6p1/5pq1/8/2N5/1PbP2P1/7K b - - 0 1")
+    board = chess.Board()
     logging.info(f"\n{board}")
     print("What type of game would you like?")
     type_game = input("(1) Player vs Player, (2) Player vs Computer, or (3) Computer vs Computer? (1, 2, or 3): ")
